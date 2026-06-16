@@ -1,0 +1,158 @@
+@import "tailwindcss";
+@source "../../media/**/*.html";
+
+/*Themes*/
+@theme {
+  --animate-toast-in: toastSlideIn 0.2s ease-out;
+
+  @keyframes toastSlideIn {
+  	from { 
+		transform: translateX(120%); 
+		opacity: 0; 
+	}
+    to { 
+		transform: translateX(0); 
+		opacity: 1; 
+	}
+  }
+}
+
+/*Apply root rules*/
+body {
+	@apply py-0 px-5;
+	@apply m-0;
+    @apply font-(family-name:--vscode-font-family);
+	@apply text-(length:--vscode-font-size);
+	@apply text-(--vscode-foreground);
+	@apply bg-(--vscode-editor-background);
+}
+
+/* Components */
+.vscode-section-label {
+    @apply box-border;
+    @apply w-full;
+    @apply m-0;
+	@apply pt-6 pb-3 px-0;;
+    @apply font-(family-name:--vscode-font-family);
+	@apply text-[22px]/[1.3];
+	@apply font-semibold;
+	@apply text-[--vscode-settings-sectionHeaderForeground,var(--vscode-foreground)];
+	@apply border-b border-b-(--vscode-settings-sectionHeaderBorder,transparent);
+    @apply truncate;
+}
+
+.form-group {
+    @apply flex flex-col;
+	@apply py-3 px-0;
+	@apply mb-2;
+}
+
+.vscode-label {
+	@apply text-(--vscode-foreground);
+	@apply font-(family-name:--vscode-font-family);
+	@apply text-(length:--vscode-font-size);
+	@apply font-semibold;
+	@apply m-0 mb-1.5;
+}
+
+.vscode-description {
+	@apply text-(--vscode-descriptionForeground);
+	@apply text-[calc(var(--vscode-font-size)*0.9)]/[1.4];
+	@apply m-0 mb-2.5;
+}
+
+.vscode-input {
+	@apply box-border;
+	@apply w-full;
+	@apply py-1.5 px-2;
+	@apply bg-(--vscode-input-background);
+    @apply text-(--vscode-input-foreground);
+	@apply border-b border-b-(--vscode-input-border,transparent);
+	@apply font-(family-name:--vscode-font-family);
+	@apply text-(length:--vscode-font-size);
+	@apply rounded-xs;
+}
+
+.vscode-input:focus {
+	@apply outline outline-(--vscode-focusBorder);
+	@apply -outline-offset-1;
+}
+
+.vscode-input::placeholder {
+	@apply text-(--vscode-input-placeholderForeground);
+	@apply opacity-80;
+}
+
+.vscode-button {
+  	@apply box-border;
+	@apply inline-flex;
+	@apply items-center;
+	@apply justify-center;
+	@apply text-center;
+	@apply py-1.5 px-3.5;
+    @apply font-(family-name:--vscode-font-family);
+	@apply text-(length:--vscode-font-size);
+	@apply font-medium;
+	@apply cursor-pointer;
+	@apply rounded-sm;
+	@apply wrap-normal;
+    @apply bg-(--vscode-button-background);
+	@apply text-(--vscode-button-foreground);
+	@apply border border-(--vscode-button-border,transparent);
+}
+
+.vscode-button:hover {
+	@apply bg-(--vscode-button-hoverBackground);
+}
+
+.vscode-button:focus {
+	@apply outline outline-(--vscode-focusBorder);
+	@apply outline-offset-2;
+}
+
+.vscode-button:active {
+	@apply opacity-80;
+}
+
+.vscode-button.secondary {
+	@apply bg-(--vscode-button-secondaryBackground);
+	@apply text-(--vscode-button-secondaryForeground);
+}
+
+.vscode-button.secondary:hover {
+	@apply bg-(--vscode-button-secondaryHoverBackground);
+}
+
+.attribute-row {
+	@apply flex;
+	@apply gap-3;
+	@apply items-end;
+	@apply py-2 px-0;
+	@apply border-b border-dashed border-b-(--vscode-panel-border,transparent);
+}
+
+.attribute-field {
+	@apply flex flex-col flex-1;
+}
+
+.vscode-toast {
+	@apply bg-(--vscode-notifications-background,#252526);
+	@apply text-(--vscode-notifications-foreground,#cccccc);
+	@apply border border-(--vscode-notifications-border,#303031);
+	@apply shadow-[0_4px_8px_rgba(0,0,0,0.3)];
+	@apply py-3 px-4;
+	@apply rounded-sm;
+	@apply font-(family-name:--vscode-font-family,sans-serif);
+	@apply text-(length:--vscode-font-size,13px);
+	@apply min-w-75;
+	@apply max-w-112.5;
+    @apply animate-toast-in;
+}
+
+.vscode-toast.error {
+	@apply border-l-4 border-l-(--vscode-inputValidation-errorBorder,#f14c4c);
+}
+
+.vscode-toast.info {
+	@apply border-l-4 border-l-(--vscode-infoIcon-foreground,#3794ff);
+}

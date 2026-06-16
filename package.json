@@ -1,0 +1,92 @@
+{
+  "name": "cplusplus-class-creator-utilities",
+  "displayName": "C++ Class Creator & Utilities",
+  "version": "1.0.0",
+  "publisher": "5dt1",
+  "icon": "logo.png",
+  "description": "A lightweight VS Code extension that generates C++ class file (.hpp). It forces immediate workspace indexing by the clangd language server and uses a custom, zero-dependency compilation pipeline instead of heavy web frameworks.",
+  "repository": {
+        "type": "git",
+        "url": "https://github.com/cinqdtun/cplusplus-class-creator-utilities"
+    },
+  "engines": {
+    "vscode": "^1.109.0",
+	"node": ">=22.22.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Other"
+  ],
+  "keywords": [
+	"productivity",
+	"boilerplate",
+	"genrator",
+	"cplusplus",
+    "cpp",
+	"class",
+	"headers",
+    "clangd",
+	"getters-and-setters",
+	"c++"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "cplusplus-class-creator-utilities.createCppClass",
+        "title": "Create C++ Class"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "cplusplus-class-creator-utilities.createCppClass",
+        "key": "ctrl+alt+c",
+        "mac": "cmd+alt+c"
+      }
+    ],
+    "configuration": {
+      "title": "C++ Class Creator & Utilities",
+      "properties": {
+        "cppClassCreator.autoImport.state": {
+          "type": "boolean",
+          "default": true,
+          "description": "When enabled, auto import missing headers (require clangd)"
+        },
+        "cppClassCreator.autoImport.clangdTimeout": {
+          "type": "number",
+          "default": 3000,
+          "description": "The maximum time (in milliseconds) to wait for clangd to analyzed created file"
+        },
+        "cppClassCreator.privateId": {
+          "type": "string",
+          "default": "",
+          "description": "Starting string before a private identifier"
+        }
+      }
+    }
+  },
+  "scripts": {
+	"dev": "node esbuild.js --watch",
+    "build": "node esbuild.js --production",
+    "package": "npm run build && npx @vscode/vsce package"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.3.2",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^26.0.1",
+    "@types/vscode": "^1.109.0",
+    "@vscode/test-electron": "^3.0.0",
+    "esbuild": "^0.28.1",
+    "eslint": "^9.39.4",
+    "html-minifier-terser": "^7.2.0",
+    "npm-run-all": "^4.1.5",
+    "tailwindcss": "^4.3.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.62.1"
+  },
+  "allowScripts": {
+    "@parcel/watcher@2.5.1": true,
+    "esbuild@0.28.1": true
+  }
+}

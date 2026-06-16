@@ -1,0 +1,20 @@
+# Devloppement files / folder
+.vscode/**
+src/**
+media/**
+node_modules/**
+.gitignore
+.vscodeignore
+declarations.d.ts
+tsconfig.json
+esbuild.js
+eslint.config.mjs 
+minifiedHtmlPlugin.js
+tailwindPlugin.js
+
+# Prdouction files / folder
+!dist/**
+!package.json
+!README.md
+!LICENSE
+!logo.png
