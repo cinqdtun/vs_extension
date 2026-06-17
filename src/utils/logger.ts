@@ -10,13 +10,13 @@ export function initLogger() {
 }
 
 export function logInfo(message: string) {
-    if (channel) {
-        channel.appendLine(`[INFO] ${message}`);
-    }
+	if (channel) {
+		channel.appendLine(`[INFO] ${message}`);
+	}
 }
 
 export function logError(message: string) {
-    if (channel) {
-        channel.appendLine(`[INFO] ${message}`);
-    }
+	if (channel) {
+		channel.appendLine(`[INFO] ${message}`);
+	}
 }

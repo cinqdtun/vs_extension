@@ -20,11 +20,5 @@ export async function getTypeDefinitions(type: string) : Promise<vscode.SymbolIn
 		type
 	);
 
-	symbols.forEach((value: vscode.SymbolInformation) => {
-		logInfo(value.name);
-		logInfo(value.containerName);
-		logInfo(value.kind.toString());
-	});
-
 	return symbols;
 }

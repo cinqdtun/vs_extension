@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { logInfo, logError } from "../utils/logger";
 import { capitalizeFirstLetter, isSplitChar, isTypeChar, isKeyword } from "../utils/utils";
 import { getTypeDefinitions } from "../utils/languageUtils";
+import * as clangd from "./clangd";
 
 export async function handleCreateClass(className: string, attributes: any[], privateId: string, targetDirUri: vscode.Uri) : Promise<boolean> {
     logInfo(`Starting class generation for: ${className}`);
@@ -11,12 +12,12 @@ export async function handleCreateClass(className: string, attributes: any[], pr
         return false;
     }
 
-	logInfo(await generateHeader(className, attributes, privateId));
+	logInfo(await generateHeader(className, attributes, privateId, targetDirUri));
 	logInfo(`${className}.hpp written to disk.`);
 	return true;
 }
 
-export async function generateHeader(className: string, attributes: any[], privateId: string) : Promise<string> {
+export async function generateHeader(className: string, attributes: any[], privateId: string, targetDirUri: vscode.Uri) : Promise<string> {
 	let attributesFiltered = attributes
 		.map((attribute: any) => ({
 			name: (attribute.name as string).trim(),
@@ -48,12 +49,12 @@ export async function generateHeader(className: string, attributes: any[], priva
 			//await getTypeDefinition(attribute.type);
 		});
 
-		for (const attribute of attributesFiltered) {
+		/*for (const attribute of attributesFiltered) {
 			for (const type of getAllTypes(attribute.type)) {
-				logInfo(type);
-				await resolveTypeHeader(type);
+				logInfo(`Matches for ${type}:`);
+				//await clangd.resolveTypeHeader(type);
 			}
-		}
+		}*/
 
 		header += ") : ";
 
@@ -97,6 +98,10 @@ export async function generateHeader(className: string, attributes: any[], priva
 
 	header += '};\n';
 
+	for (const head of await clangd.clangdResolveHeader(header, targetDirUri)) {
+		logInfo(head);
+	}
+
 	return (header);
 }
 
@@ -121,14 +126,9 @@ export function getAllTypes(type: string) : string[] {
 		}
 	}
 
-	return arr;
-}
-
-export async function resolveTypeHeader(type: string) {
-	if (type.startsWith("std::")) {
-		// STD namespace need to find the correct header
-	} else {
-		// Fallback if not in std namespace
-		const definitions = await getTypeDefinitions(type);
+	if (buffer.length > 0 && !isKeyword(buffer)) {
+		arr.push(buffer);
 	}
+
+	return arr;
 }
