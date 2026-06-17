@@ -9,15 +9,20 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-	"*"
-  ],
+  "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "vs-extension.helloWorld",
-        "title": "Hello World"
+        "command": "vs-extension.createCppClass",
+        "title": "Create C++ Class"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "vs-extension.createCppClass",
+        "key": "ctrl+alt+c",
+        "mac": "cmd+alt+c"
       }
     ]
   },
@@ -34,19 +39,18 @@
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
     "test": "vscode-test",
-	"dev": "npx @vscode/vsce package --allow-missing-repository --allow-star-activation && code --install-extension vs-extension-0.0.1.vsix"
-
+    "dev": "npx @vscode/vsce package --allow-missing-repository --allow-star-activation && code --install-extension vs-extension-0.0.1.vsix"
   },
   "devDependencies": {
-    "@types/vscode": "^1.120.0",
     "@types/mocha": "^10.0.10",
-    "@types/node": "22.x",
-    "typescript-eslint": "^8.56.1",
-    "eslint": "^9.39.3",
+    "@types/node": "^22.19.21",
+    "@types/vscode": "^1.120.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
     "esbuild": "^0.27.3",
+    "eslint": "^9.39.3",
     "npm-run-all": "^4.1.5",
     "typescript": "^5.9.3",
-    "@vscode/test-cli": "^0.0.12",
-    "@vscode/test-electron": "^2.5.2"
+    "typescript-eslint": "^8.56.1"
   }
 }
