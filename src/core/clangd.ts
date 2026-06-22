@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { logInfo } from './../utils/logger';
+import { logError, logInfo } from './../utils/logger';
 import { getTypeDefinitions } from './../utils/languageUtils';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -53,6 +53,80 @@ export async function resolveTypeHeader(type: string) {
 	}
 }
 
+export async function writeFile(builtHeader: string, targetDirUri: vscode.Uri, className: string) : Promise<Boolean> {
+	const fileUri = vscode.Uri.joinPath(targetDirUri, className);
+	const filePath = fileUri.fsPath;
+
+	try {
+		logInfo("Attempting writing header to disk...");
+
+		fs.writeFileSync(filePath, builtHeader, 'utf8');
+
+		return true;
+	} catch (error) {
+		logError("Error occured while writing file");
+	}
+
+	return false;
+}
+
+export async function clangdResolveTypes(targetDirUri: vscode.Uri, className: string) : Promise<Set<string>> {
+	const fileUri = vscode.Uri.joinPath(targetDirUri, className);
+
+	try {
+		await new Promise(resolve => setTimeout(resolve, 500));  // Wait a small window in order to let clangd diagnose the new file
+
+		const diagnostics = vscode.languages.getDiagnostics(fileUri); // Ask for diagnostics
+		logInfo(`Clangd found ${diagnostics.length} diagnostics.`);
+
+		// Filter errors to keep missing header ones
+		const missingHeaderErrors = diagnostics.filter(d => {
+			if (d.severity !== vscode.DiagnosticSeverity.Error) {
+				return false;
+			}
+
+			const message = d.message.toLowerCase(); // Fixes case sensitivity issues
+			
+			return message.includes('unknown type name') || 
+				message.includes('use of undeclared identifier') ||
+				message.includes('expected a type');
+		});
+
+		await new Promise(resolve => setTimeout(resolve, 100)); // Wait before asking for auto import to give the missing header
+
+		const missingHeaders: Set<string> = new Set();
+		for (const error of missingHeaderErrors) {
+			// Request smart fix to get missing header location
+			const hint = await vscode.commands.executeCommand<vscode.CodeAction[]>(
+				'vscode.executeCodeActionProvider',
+				fileUri,
+				error.range
+			);
+
+			if (hint) {
+				const headerHint = hint.find(h => {
+					const lowerHint = h.title.toLowerCase(); // Lowercase hint
+
+					return lowerHint.startsWith('include'); // Is giving header hint ?
+				});
+				
+				if (headerHint) {
+					const match = headerHint.title.match(/(<[^>]+>|"[^"]+")/); // Try to match header path in <> OR ""
+
+					if (match && match[0]) { // Check if header found to add it
+						missingHeaders.add(match[0]);
+					}
+				}
+			}
+		}
+
+	} catch (error) {
+		logError("Error occured while resolving types with clangd");
+	}
+
+	return new Set();
+}
+
 export async function clangdResolveHeader(builtHeader: string, targetDirUri: vscode.Uri) : Promise<string[]> {
 	
 	// 1. Create a physical path inside your target source folder
@@ -65,8 +139,6 @@ export async function clangdResolveHeader(builtHeader: string, targetDirUri: vsc
 		// 2. Sync write your generated code buffer straight to the file system
 		fs.writeFileSync(filePath, builtHeader, 'utf8');
 
-		// 3. Open the document via its file:// URI schema so VS Code tracks it
-		const doc = await vscode.workspace.openTextDocument(scratchpadUri);
 
 		// 4. Wait a small window for the background file-watcher to trigger clangd's engine
 		await new Promise(resolve => setTimeout(resolve, 500)); 
