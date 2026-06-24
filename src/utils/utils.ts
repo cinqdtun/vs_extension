@@ -1,5 +1,8 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
+import * as readline from 'readline';
+import * as fs from 'fs';
+import { logError, logInfo } from './logger';
 
 export function getStylesheetUri(context: vscode.ExtensionContext, panel: vscode.WebviewPanel) : vscode.Uri {
 	const stylesheetDiskPath = vscode.Uri.joinPath(context.extensionUri, 'src', 'styles', 'styles.css');
@@ -40,162 +43,67 @@ export function capitalizeFirstLetter(val: string) {
 	return String(val).charAt(0).toUpperCase() + String(val).slice(1);
 }
 
-export function isKeyword(type: string) : Boolean {
-	const keywords = new Set([
-		"alignas",
-		"alignof",
-		"and",
-		"and_eq",
-		"asm",
-		"atomic_cancel",
-		"atomic_commit",
-		"atomic_noexcept",
-		"auto",
-		"bitand",
-		"bitor",
-		"bool",
-		"break",
-		"case",
-		"catch",
-		"char",
-		"char8_t",
-		"char16_t",
-		"char32_t",
-		"class",
-		"compl",
-		"concept",
-		"const",
-		"consteval",
-		"constexpr",
-		"constinit",
-		"const_cast",
-		"continue",
-		"contract_assert",
-		"co_await",
-		"co_return",
-		"co_yield",
-		"decltype",
-		"default",
-		"delete",
-		"do",
-		"double",
-		"dynamic_cast",
-		"else",
-		"enum",
-		"explicit",
-		"export",
-		"extern",
-		"false",
-		"float",
-		"for",
-		"friend",
-		"goto",
-		"if",
-		"inline",
-		"int",
-		"long",
-		"mutable",
-		"namespace",
-		"new",
-		"noexcept",
-		"not",
-		"not_eq",
-		"nullptr",
-		"operator",
-		"or",
-		"or_eq",
-		"private",
-		"protected",
-		"public",
-		"reflexpr",
-		"register",
-		"reinterpret_cast",
-		"requires",
-		"return",
-		"short",
-		"signed",
-		"sizeof",
-		"static",
-		"static_assert",
-		"static_cast",
-		"struct",
-		"switch",
-		"synchronized",
-		"template",
-		"this",
-		"thread_local",
-		"throw",
-		"true",
-		"try",
-		"typedef",
-		"typeid",
-		"typename",
-		"union",
-		"unsigned",
-		"using",
-		"virtual",
-		"void",
-		"volatile",
-		"wchar_t",
-		"while",
-		"xor",
-		"xor_eq"]);
+export async function modifyFile(srcFile: vscode.Uri, linePos: number, lines: string[] | Set<string>) : Promise<boolean> {
+	const srcPath = srcFile.fsPath;
+	const tmpPath = `${srcPath}.tmp`;
 
-	return keywords.has(type);
-}
+	const writeStream = fs.createWriteStream(`${srcPath}.tmp`);
 
-export function isDigit(c: string) : Boolean {
-	if (c.length !== 1) {
-		return false;
-	}
+	return new Promise<boolean>((resolve) => {
+		const reader = readline.createInterface({
+			input: fs.createReadStream(srcPath),
+			terminal: false // Prevents any terminal formatting quirks
+		});
 
-	return c >= '0' && c <= '9';
-}
+		let i = 0;
 
-export function isUpper(c: string) : Boolean {
-	if (c.length !== 1) {
-		return false;
-	}
+		reader.on('line', (line) => {
+			if (i === linePos) {
+				for (const line of lines) {
+					writeStream.write(line + '\n');
+				}
+			}
 
-	return c >= 'A' && c <= 'Z';
-}
+			writeStream.write(line + '\n');
 
-export function isLower(c: string) : Boolean {
-	if (c.length !== 1) {
-		return false;
-	}
+			i++;
+		});
 
-	return c >= 'a' && c <= 'z';
-}
+		reader.on('error', (err) => {
+			reader.close();
+			writeStream.destroy();
 
-export function isUnderscore(c: string) : Boolean {
-	if (c.length !== 1) {
-		return false;
-	}
+			if (fs.existsSync(tmpPath)) {
+				fs.unlinkSync(tmpPath);
+			}
 
-	return c === '_';
-}
+			logError(`Error occured while modifying file: ${srcPath}`);
 
-export function isColon(c: string) : Boolean {
-	if (c.length !== 1) {
-		return false;
-	}
+			resolve(false);
+		});
 
-	return c === ':';
-}
+		reader.on('close', () => {
+			if (i <= linePos) {
+				for (const line of lines) {
+					writeStream.write(line + '\n');
+				}
+			}
 
-export function isTypeChar(c: string) : Boolean {
-	if (c.length !== 1) {
-		return false;
-	}
+			writeStream.end();
 
-	return isLower(c) || isUpper(c) || isDigit(c) || isColon(c) || isUnderscore(c);
-}
+			try {
+				fs.renameSync(tmpPath, srcPath);
 
-export function isSplitChar(c: string) : Boolean {
-	if (c.length !== 1) {
-		return false;
-	}
+				logInfo(`Successfully modfied file: ${srcPath}`);
+				resolve(true);
+			} catch (err) {
+				if (fs.existsSync(tmpPath)) {
+					fs.unlinkSync(tmpPath);
+				}
 
-	return c === '<' || c === '>' || c === ',' || c === '*' || c === '&' || c === ' ';
+				logInfo(`Failed to apply modification to: ${srcFile}`);
+				resolve(false);
+			}
+		});
+	});
 }

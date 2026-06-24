@@ -17,6 +17,6 @@ export function logInfo(message: string) {
 
 export function logError(message: string) {
 	if (channel) {
-		channel.appendLine(`[INFO] ${message}`);
+		channel.appendLine(`[ERROR] ${message}`);
 	}
 }

@@ -1,23 +1,59 @@
 import * as vscode from 'vscode';
 import { logInfo, logError } from "../utils/logger";
-import { capitalizeFirstLetter, isSplitChar, isTypeChar, isKeyword } from "../utils/utils";
-import { getTypeDefinitions } from "../utils/languageUtils";
+import { capitalizeFirstLetter, modifyFile } from "../utils/utils";
+import { getAutoImport } from '../utils/config';
 import * as clangd from "./clangd";
-
-export async function handleCreateClass(className: string, attributes: any[], privateId: string, targetDirUri: vscode.Uri) : Promise<boolean> {
+import * as fs from 'fs';
+ 
+export async function handleCreateClass(className: string, attributes: any[], privateId: string, targetDirUri: vscode.Uri) : Promise<void> {
     logInfo(`Starting class generation for: ${className}`);
 
 	if (!className) {
-        logError(`Generation aborted: Empty class name.`);
-        return false;
+        logError(`Empty class name.`);
+		vscode.window.showErrorMessage('Empty class name.');
+        return;
     }
 
-	logInfo(await generateHeader(className, attributes, privateId, targetDirUri));
-	logInfo(`${className}.hpp written to disk.`);
-	return true;
+	const basicHeader = await generateHeader(className, attributes, privateId);
+	const fileUri = vscode.Uri.joinPath(targetDirUri, className + '.hpp');
+
+	if (!writeFile(basicHeader, fileUri)) {
+		vscode.window.showErrorMessage('Failed to write class to disk.');
+		return;
+	}
+
+	if (!getAutoImport()) {
+		return;
+	}
+
+	if (!clangd.isClangdPresent()) {
+		vscode.window.showErrorMessage('Clangd is not installed / enabled.');
+		return;
+	}
+
+	// Should check if clangd extension is present and operational
+	const missingHeaders = await clangd.clangdResolveTypes(fileUri);
+
+	if (missingHeaders.size) {
+		let headersInject = [""];
+
+		missingHeaders.forEach((header: string) => {
+			headersInject.push(`#include ${header}`);
+		});
+
+		// Found missing headers
+		if (!await modifyFile(fileUri, 1, headersInject)) {
+			vscode.window.showErrorMessage('Auto import failed to apply updates.');
+			return;
+		}
+	}
+
+	vscode.window.showInformationMessage('Successfully created class.');
+	logInfo(`Successfully created class.`);
+	return;
 }
 
-export async function generateHeader(className: string, attributes: any[], privateId: string, targetDirUri: vscode.Uri) : Promise<string> {
+export async function generateHeader(className: string, attributes: any[], privateId: string) : Promise<string> {
 	let attributesFiltered = attributes
 		.map((attribute: any) => ({
 			name: (attribute.name as string).trim(),
@@ -29,7 +65,7 @@ export async function generateHeader(className: string, attributes: any[], priva
 
 	let header: string = "";
 
-	header += "#pragma once\n";
+	header += "#pragma once\n\n";
 	header += `class ${className} {\n`;
 
 	header += '\tpublic:\n';
@@ -46,15 +82,7 @@ export async function generateHeader(className: string, attributes: any[], priva
 			}
 			header += `${attribute.type} ${attribute.name}`;
 			isFirst = false;
-			//await getTypeDefinition(attribute.type);
 		});
-
-		/*for (const attribute of attributesFiltered) {
-			for (const type of getAllTypes(attribute.type)) {
-				logInfo(`Matches for ${type}:`);
-				//await clangd.resolveTypeHeader(type);
-			}
-		}*/
 
 		header += ") : ";
 
@@ -98,37 +126,21 @@ export async function generateHeader(className: string, attributes: any[], priva
 
 	header += '};\n';
 
-	for (const head of await clangd.clangdResolveHeader(header, targetDirUri)) {
-		logInfo(head);
-	}
-
 	return (header);
 }
 
-export function getAllTypes(type: string) : string[] {
-	let arr: string[] = [];
-	let buffer: string = "";
-	
-	for (let i = 0; i < type.length; i++) {
-		let c = type.at(i);
+export function writeFile(builtHeader: string, fileUri: vscode.Uri) : Boolean {
+	const filePath = fileUri.fsPath;
 
-		if (!c) {
-			continue;
-		}
+	try {
+		logInfo("Attempting writing header to disk...");
 
-		if (isTypeChar(c)) {
-			buffer += c;
-		} else if (isSplitChar(c) && buffer.length > 0) {
-			if (!isKeyword(buffer)) {
-				arr.push(buffer);
-			}
-			buffer = "";	
-		}
+		fs.writeFileSync(filePath, builtHeader, 'utf8');
+
+		return true;
+	} catch (error) {
+		logError("Error occured while writing file");
 	}
 
-	if (buffer.length > 0 && !isKeyword(buffer)) {
-		arr.push(buffer);
-	}
-
-	return arr;
+	return false;
 }
