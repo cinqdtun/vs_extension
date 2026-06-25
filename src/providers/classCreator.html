@@ -85,6 +85,7 @@
 
 			let attributes = [];
 			let attributeCount = 0;
+			let keysPressed = {};
 
 			function showToast(message, type = 'info') {
 				const container = document.getElementById('toast-container');
@@ -154,6 +155,53 @@
 				input.focus();
 			}
 
+			function getAttributeIdx(target) {
+				const activeRows = document.querySelectorAll('.attribute-row');
+				const arrActiveRows = Array.from(activeRows);
+
+				const row = target.closest('.attribute-row');
+
+				if (!row) {
+					return -1;
+				}
+
+				const idx = arrActiveRows.indexOf(row);
+				return idx;
+			}
+
+			function moveWebviewVertical(idx, resetVertical = false) {
+				const isNameField = document.activeElement.classList.contains('attr-name');
+
+				if (idx < 0) {
+					classNameInput.focus();
+					return;
+				}
+
+				if (isNameField && !resetVertical) {
+					focusAttributeName(idx);
+					return;
+				}
+
+				focusAttributeType(idx);
+			}
+
+			function removeAttribute(idx) {
+				if (idx < 0) {
+					return;
+				}
+
+				const prevIdx = idx - 1;
+				const activeRows = document.querySelectorAll('.attribute-row');
+				const arrActiveRows = Array.from(activeRows);
+				const row = arrActiveRows[idx];
+
+				attributes.splice(idx, 1);
+				updateState({ attributes: attributes });
+				row.remove();
+
+				moveWebviewVertical(prevIdx, true);
+			}
+
 			function drawAttribute(attrData) {
 				attributeCount++;
 
@@ -179,13 +227,9 @@
 
 				row.querySelector('.delete-btn').addEventListener('click', () => {
 					const allRows = Array.from(container.querySelectorAll('.attribute-row'));
-					const id = allRows.indexOf(row);
-					const prevIdx = Math.max(0, idx - 1);
-
-					attributes.splice(id, 1);
-					updateState({ attributes: attributes });
-					row.remove();
-					focusAttributeType(prevIdx);
+					const idx = allRows.indexOf(row);
+					
+					removeAttribute(idx);
 				});
 
 				const attrName = row.querySelector('.attr-name')
@@ -243,42 +287,12 @@
 				});
 			}
 
-			function isAttribute(el) {
+			function testAttribute(el) {
 				return (el.classList.contains('attr-type') || el.classList.contains('attr-name') || el.classList.contains('attribute-field'));
 			}
 
-			function isClassName(el) {
+			function testClassName(el) {
 				return (el.id === 'class-name');
-			}
-
-			function getAttributeIdx(target) {
-				const activeRows = document.querySelectorAll('.attribute-row');
-				const arrActiveRows = Array.from(activeRows);
-
-				const row = target.closest('.attribute-row');
-
-				if (!row) {
-					return -1;
-				}
-
-				const idx = arrActiveRows.indexOf(row);
-				return idx;
-			}
-
-			function moveWebviewVertical(idx, resetVertical = false) {
-				const isNameField = event.target.classList.contains('attr-name');
-
-				if (idx < 0) {
-					classNameInput.focus();
-					return;
-				}
-
-				if (isNameField && !resetVertical) {
-					focusAttributeName(idx);
-					return;
-				}
-
-				focusAttributeType(idx);
 			}
 
 			if (previousState) {
@@ -309,39 +323,47 @@
 				createClass();
 			});
 
+			window.addEventListener('keyup', (event) => {
+				const key = event.key.toLowerCase();
+
+				keysPressed[key] = false;
+    
+				if (!event.ctrlKey && !event.metaKey) {
+					keysPressed['modifier'] = false;
+				}
+			});
 			window.addEventListener('keydown', (event) => {
 				const key = event.key.toLowerCase();
-				const isMetaKey = event.ctrlKey || event.metaKey;
-				const isAttribute = isAttribute(event.target);
-				const isClassName = isClassName(event.target);
 
-				if (key === "a" && isMetaKey) {
+				if (event.ctrlKey || event.metaKey) {
+					keysPressed['modifier'] = true;
+				}
+
+				keysPressed[key] = true;
+
+				const isAttribute = testAttribute(document.activeElement);
+				const isClassName = testClassName(document.activeElement);
+
+				if (keysPressed["a"] && keysPressed['modifier']) {
 					event.preventDefault();
 					drawAttribute({ name: "", type: "" });
 					focusLastAttribute();
 				}
 
-				if (key === 'd' && isMetaKey && isAttribute) {
+				if (keysPressed['d'] && keysPressed['modifier'] && isAttribute) {
 					event.preventDefault();
-					const idx = getAttributeIdx(event.target);
+					const idx = getAttributeIdx(document.activeElement);
 
 					if (idx == -1) {
 						return;
 					}
 
-					const prevIdx = idx - 1;
-
-					attributes.splice(idx, 1);
-					updateState({ attributes: attributes });
-
-					row.remove();
-
-					moveWebviewVertical(prevIdx, true);
+					removeAttribute(idx);
 				}
 
-				if (key === 'arrowup' && isMetaKey && isAttribute) {
+				if (keysPressed['modifier'] && keysPressed['arrowup'] && isAttribute) {
 					event.preventDefault();
-					const idx = getAttributeIdx(event.target);
+					const idx = getAttributeIdx(document.activeElement);
 
 					if (idx == -1) {
 						return;
@@ -351,9 +373,9 @@
 					moveWebviewVertical(prevIdx);
 				}
 
-				if (key === 'arrowdown' && isMetaKey && isAttribute) {
+				if (keysPressed['modifier'] && keysPressed['arrowdown'] && isAttribute) {
 					event.preventDefault();
-					const idx = getAttributeIdx(event.target);
+					const idx = getAttributeIdx(document.activeElement);
 
 					if (idx == -1) {
 						return;
@@ -363,15 +385,15 @@
 					moveWebviewVertical(prevIdx);
 				}
 
-				if (key === 'arrowdown' && isMetaKey && isClassName) {
+				if (keysPressed['modifier'] && keysPressed['arrowdown'] && isClassName) {
 					event.preventDefault();
 
 					focusAttributeType(0);
 				}
 
-				if (key === 'arrowleft' && isMetaKey && isAttribute) {
+				if (keysPressed['modifier'] && keysPressed['arrowleft'] && isAttribute) {
 					event.preventDefault();
-					const idx = getAttributeIdx(event.target);
+					const idx = getAttributeIdx(document.activeElement);
 
 					if (idx == -1) {
 						return;
@@ -380,9 +402,9 @@
 					focusAttributeType(idx);
 				}
 
-				if (key === 'arrowright' && isMetaKey && isAttribute) {
+				if (keysPressed['modifier'] && keysPressed['arrowright'] && isAttribute) {
 					event.preventDefault();
-					const idx = getAttributeIdx(event.target);
+					const idx = getAttributeIdx(document.activeElement);
 
 					if (idx == -1) {
 						return;
@@ -391,10 +413,15 @@
 					focusAttributeName(idx);
 				}
 
-				if (key === 'enter') {
+				if (keysPressed['enter']) {
 					event.preventDefault();
 					createClass();
 				}
+			});
+
+			window.addEventListener('blur', () => {
+				// Clear all keys since windows is out of focus
+				for (let k in keysPressed) keysPressed[k] = false;
 			});
 		</script>
 	</body>
