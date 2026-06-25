@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 /* --- 1. Root Sandbox Container --- */
 body {
     /* Horizontal framework only, as requested */

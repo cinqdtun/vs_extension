@@ -225,28 +225,38 @@
 					</button>
 				`;
 
-				row.querySelector('.delete-btn').addEventListener('click', () => {
-					const allRows = Array.from(container.querySelectorAll('.attribute-row'));
-					const idx = allRows.indexOf(row);
-					
+				const deleteBtn = row.querySelector('.delete-btn');
+				deleteBtn.addEventListener('click', () => {
+					const idx = getAttributeIdx(deleteBtn);
+
+					if (idx == -1) {
+						return;
+					}
+
 					removeAttribute(idx);
 				});
 
 				const attrName = row.querySelector('.attr-name')
 				attrName.addEventListener('input', () => {
-					const allRows = Array.from(container.querySelectorAll('.attribute-row'));
-					const id = allRows.indexOf(row);
+					const idx = getAttributeIdx(deleteBtn);
 
-					attributes[id] = { ...attributes[id], name: attrName.value };
+					if (idx == -1) {
+						return;
+					}
+					
+					attributes[idx] = { ...attributes[idx], name: attrName.value };
 					updateState({ attributes: attributes });
 				});
 
 				const attrType = row.querySelector('.attr-type')
 				attrType.addEventListener('input', () => {
-					const allRows = Array.from(container.querySelectorAll('.attribute-row'));
-					const id = allRows.indexOf(row);
+					const idx = getAttributeIdx(deleteBtn);
 
-					attributes[id] = { ...attributes[id], type: attrType.value };
+					if (idx == -1) {
+						return;
+					}
+
+					attributes[idx] = { ...attributes[idx], type: attrType.value };
 					updateState({ attributes: attributes });
 				});
 

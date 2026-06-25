@@ -25,26 +25,26 @@
         "mac": "cmd+alt+c"
       }
     ],
-	"configuration": {
-		"title": "vs-extension",
-		"properties": {
-			"cppClassCreator.autoImport.state": {
-				"type": "boolean",
-				"default": true,
-				"description": "When enabled, auto import missing headers (require clangd)"
-			},
-			"cppClassCreator.autoImport.clangdTimeout": {
-				"type": "number",
-				"default": 3000,
-				"description": "The maximum time (in milliseconds) to wait for clangd to analyzed created file"
-			},
-			"cppClassCreator.privateId": {
-				"type": "string",
-				"default": "",
-				"description": "Starting string before a private identifier"
-			}
-		}
-	}
+    "configuration": {
+      "title": "vs-extension",
+      "properties": {
+        "cppClassCreator.autoImport.state": {
+          "type": "boolean",
+          "default": true,
+          "description": "When enabled, auto import missing headers (require clangd)"
+        },
+        "cppClassCreator.autoImport.clangdTimeout": {
+          "type": "number",
+          "default": 3000,
+          "description": "The maximum time (in milliseconds) to wait for clangd to analyzed created file"
+        },
+        "cppClassCreator.privateId": {
+          "type": "string",
+          "default": "",
+          "description": "Starting string before a private identifier"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
@@ -59,6 +59,7 @@
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
     "test": "vscode-test",
+	"compile-tailwind": "npx @tailwindcss/cli -i ./src/providers/input.css -o ./media/tailwind.css --minify",
     "dev": "npx @vscode/vsce package --allow-missing-repository --allow-star-activation && code --install-extension vs-extension-0.0.1.vsix"
   },
   "devDependencies": {
@@ -72,5 +73,9 @@
     "npm-run-all": "^4.1.5",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.56.1"
+  },
+  "dependencies": {
+    "@tailwindcss/cli": "^4.3.1",
+    "tailwindcss": "^4.3.1"
   }
 }
