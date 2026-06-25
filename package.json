@@ -37,6 +37,11 @@
 				"type": "number",
 				"default": 3000,
 				"description": "The maximum time (in milliseconds) to wait for clangd to analyzed created file"
+			},
+			"cppClassCreator.privateId": {
+				"type": "string",
+				"default": "",
+				"description": "Starting string before a private identifier"
 			}
 		}
 	}

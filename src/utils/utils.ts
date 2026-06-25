@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as readline from 'readline';
 import * as fs from 'fs';
 import { logError, logInfo } from './logger';
+import { getInsertSpace, getTabSize } from './config';
 
 export function getStylesheetUri(context: vscode.ExtensionContext, panel: vscode.WebviewPanel) : vscode.Uri {
 	const stylesheetDiskPath = vscode.Uri.joinPath(context.extensionUri, 'src', 'styles', 'styles.css');
@@ -106,4 +107,12 @@ export async function modifyFile(srcFile: vscode.Uri, linePos: number, lines: st
 			}
 		});
 	});
+}
+
+export function getSpace() : string {
+	if (!getInsertSpace()) {
+		return "\t";
+	}
+
+	return ' '.repeat(getTabSize());
 }

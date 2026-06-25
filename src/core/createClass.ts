@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { logInfo, logError } from "../utils/logger";
-import { capitalizeFirstLetter, modifyFile } from "../utils/utils";
+import { capitalizeFirstLetter, modifyFile, getSpace } from "../utils/utils";
 import { getAutoImport } from '../utils/config';
 import * as clangd from "./clangd";
 import * as fs from 'fs';
@@ -23,30 +23,68 @@ export async function handleCreateClass(className: string, attributes: any[], pr
 	}
 
 	if (!getAutoImport()) {
+		const document = await vscode.workspace.openTextDocument(fileUri);
+
+		await vscode.window.showTextDocument(document, {
+			viewColumn: vscode.ViewColumn.One,
+			preview: false,
+			preserveFocus: false
+		});
 		return;
 	}
 
 	if (!clangd.isClangdPresent()) {
 		vscode.window.showErrorMessage('Clangd is not installed / enabled.');
+		const document = await vscode.workspace.openTextDocument(fileUri);
+
+		await vscode.window.showTextDocument(document, {
+			viewColumn: vscode.ViewColumn.One,
+			preview: false,
+			preserveFocus: false
+		});
 		return;
 	}
 
 	// Should check if clangd extension is present and operational
 	const missingHeaders = await clangd.clangdResolveTypes(fileUri);
+	const sortedMissingHeaders = sortHeaders([...missingHeaders]);
 
 	if (missingHeaders.size) {
 		let headersInject = [""];
 
-		missingHeaders.forEach((header: string) => {
+		sortedMissingHeaders.standardLibs.forEach((header: string) => {
+			headersInject.push(`#include ${header}`);
+		});
+
+		headersInject.push("");
+
+		sortedMissingHeaders.userLibs.forEach((header: string) => {
 			headersInject.push(`#include ${header}`);
 		});
 
 		// Found missing headers
 		if (!await modifyFile(fileUri, 1, headersInject)) {
 			vscode.window.showErrorMessage('Auto import failed to apply updates.');
+
+			const document = await vscode.workspace.openTextDocument(fileUri);
+
+			await vscode.window.showTextDocument(document, {
+				viewColumn: vscode.ViewColumn.One,
+				preview: false,
+				preserveFocus: false
+			});
+
 			return;
 		}
 	}
+
+	const document = await vscode.workspace.openTextDocument(fileUri);
+
+	await vscode.window.showTextDocument(document, {
+		viewColumn: vscode.ViewColumn.One,
+		preview: false,
+		preserveFocus: false
+	});
 
 	vscode.window.showInformationMessage('Successfully created class.');
 	logInfo(`Successfully created class.`);
@@ -64,15 +102,16 @@ export async function generateHeader(className: string, attributes: any[], priva
 	let privateIdFiltered = privateId.trim();
 
 	let header: string = "";
+	const space = getSpace();
 
 	header += "#pragma once\n\n";
 	header += `class ${className} {\n`;
 
-	header += '\tpublic:\n';
-	header += `\t\t${className}() = default;\n`;
+	header += `${space}public:\n`;
+	header += `${space}${space}${className}() = default;\n`;
 
 	if (attributesFiltered.length) {
-		header += `\t\t${className}(`;
+		header += `${space}${space}${className}(`;
 
 		let isFirst = true;
 
@@ -99,29 +138,29 @@ export async function generateHeader(className: string, attributes: any[], priva
 
 		header += " {}\n";
 	}
-	header += `\t\t${className}(const ${className}& obj) = default;\n`;
-	header += `\t\t${className}& operator=(const ${className}& obj) = default;\n`;
+	header += `${space}${space}${className}(const ${className}& obj) = default;\n`;
+	header += `${space}${space}${className}& operator=(const ${className}& obj) = default;\n`;
 	
 	if (attributesFiltered.length) {
 		header += `\n`;
 
 		attributesFiltered.forEach((attribute: any) => {
 			const name = capitalizeFirstLetter(attribute.name);
-			header += `\t\t${attribute.type} get${name}() const { return ${privateIdFiltered}${attribute.name}; }\n`;
+			header += `${space}${space}${attribute.type} get${name}() const { return ${privateIdFiltered}${attribute.name}; }\n`;
 		});
 
 		header += `\n`;
 
 		attributesFiltered.forEach((attribute: any) => {
 			const name = capitalizeFirstLetter(attribute.name);
-			header += `\t\tvoid set${name}(${attribute.type} ${attribute.name}) { ${privateIdFiltered}${attribute.name} = ${attribute.name}; }\n`;
+			header += `${space}${space}void set${name}(${attribute.type} ${attribute.name}) { ${privateIdFiltered}${attribute.name} = ${attribute.name}; }\n`;
 		});
 	}
 
-	header += '\tprivate:\n';
+	header += `${space}private:\n`;
 
 	attributesFiltered.forEach((attribute: any) => {
-		header += `\t\t${attribute.type} ${privateIdFiltered}${attribute.name};\n`;
+		header += `${space}${space}${attribute.type} ${privateIdFiltered}${attribute.name};\n`;
 	});
 
 	header += '};\n';
@@ -143,4 +182,17 @@ export function writeFile(builtHeader: string, fileUri: vscode.Uri) : Boolean {
 	}
 
 	return false;
+}
+
+function sortHeaders(headers: string[]) : {
+	standardLibs: string[],
+	userLibs: string[]
+} {
+    const standardLibs = headers.filter(h => h.startsWith('<'));
+    const userLibs = headers.filter(h => h.trim().startsWith('"'));
+
+    standardLibs.sort((a, b) => a.localeCompare(b));
+    userLibs.sort((a, b) => a.localeCompare(b));
+
+    return {standardLibs: [...standardLibs], userLibs: [...userLibs]};
 }
