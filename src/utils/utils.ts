@@ -6,7 +6,7 @@ import { logError, logInfo } from './logger';
 import { getInsertSpace, getTabSize } from './config';
 
 export function getStylesheetUri(context: vscode.ExtensionContext, panel: vscode.WebviewPanel) : vscode.Uri {
-	const stylesheetDiskPath = vscode.Uri.joinPath(context.extensionUri, 'src', 'styles', 'styles.css');
+	const stylesheetDiskPath = vscode.Uri.joinPath(context.extensionUri, 'dist', 'styles.css');
 	const stylesheetUri = panel.webview.asWebviewUri(stylesheetDiskPath);
 
 	return (stylesheetUri);

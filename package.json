@@ -59,8 +59,8 @@
     "check-types": "tsc --noEmit",
     "lint": "eslint src",
     "test": "vscode-test",
-	"compile-tailwind": "npx @tailwindcss/cli -i ./src/providers/input.css -o ./media/tailwind.css --minify",
-    "dev": "npx @vscode/vsce package --allow-missing-repository --allow-star-activation && code --install-extension vs-extension-0.0.1.vsix"
+    "compile-tailwind": "npx @tailwindcss/cli -i ./src/styles/styles.css -o ./dist/styles.css --minify",
+    "dev": "npm run compile-tailwind && npx @vscode/vsce package --allow-missing-repository --allow-star-activation && code --install-extension vs-extension-0.0.1.vsix"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.10",

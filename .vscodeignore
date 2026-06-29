@@ -1,0 +1,8 @@
+.vscode/**
+.gitignore
+tsconfig.json
+esbuild.js
+eslint.config.mjs
+vsc-extension-quickstart.md
+src/**
+node_modules/**
