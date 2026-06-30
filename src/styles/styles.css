@@ -1,173 +1,158 @@
 @import "tailwindcss";
+@source "../../media/**/*.html";
 
-/* --- 1. Root Sandbox Container --- */
+/*Themes*/
+@theme {
+  --animate-toast-in: toastSlideIn 0.2s ease-out;
+
+  @keyframes toastSlideIn {
+  	from { 
+		transform: translateX(120%); 
+		opacity: 0; 
+	}
+    to { 
+		transform: translateX(0); 
+		opacity: 1; 
+	}
+  }
+}
+
+/*Apply root rules*/
 body {
-    /* Horizontal framework only, as requested */
-    padding: 0 20px; 
-    margin: 0;
-    
-    font-family: var(--vscode-font-family);
-    font-size: var(--vscode-font-size);
-    color: var(--vscode-foreground);
-    background-color: var(--vscode-editor-background);
+	@apply py-0 px-5;
+	@apply m-0;
+    @apply font-(family-name:--vscode-font-family);
+	@apply text-(length:--vscode-font-size);
+	@apply text-(--vscode-foreground);
+	@apply bg-(--vscode-editor-background);
 }
 
-/* --- 2. Headers & Layout Sections --- */
+/* Components */
 .vscode-section-label {
-    box-sizing: border-box;
-    width: 100%;
-    margin: 0;
-    /* Clean vertical framing matching native categories */
-    padding: 24px 0 12px 0; 
-    
-    font-family: var(--vscode-font-family);
-    font-size: 22px; /* Adjusted down slightly to align with line-height */
-    font-weight: 600;
-    line-height: 1.3; /* Fixed: Prevents text clipping */
-    color: var(--vscode-settings-sectionHeaderForeground, var(--vscode-foreground));
-    border-bottom: 1px solid var(--vscode-settings-sectionHeaderBorder, transparent);
-    
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    @apply box-border;
+    @apply w-full;
+    @apply m-0;
+	@apply pt-6 pb-3 px-0;;
+    @apply font-(family-name:--vscode-font-family);
+	@apply text-[22px]/[1.3];
+	@apply font-semibold;
+	@apply text-[--vscode-settings-sectionHeaderForeground,var(--vscode-foreground)];
+	@apply border-b border-b-(--vscode-settings-sectionHeaderBorder,transparent);
+    @apply truncate;
 }
 
-/* --- 3. Form Component Row Control --- */
 .form-group {
-    display: flex;
-    flex-direction: column;
-    /* Generous vertical spacing between distinct form elements */
-    padding: 12px 0; 
-    margin-bottom: 8px;
+    @apply flex flex-col;
+	@apply py-3 px-0;
+	@apply mb-2;
 }
 
-/* The Input Descriptor Label */
 .vscode-label {
-    color: var(--vscode-foreground);
-    font-family: var(--vscode-font-family);
-    font-size: var(--vscode-font-size);
-    font-weight: 600; 
-    margin: 0 0 6px 0; /* Clear bottom separation to hit input box */
+	@apply text-(--vscode-foreground);
+	@apply font-(family-name:--vscode-font-family);
+	@apply text-(length:--vscode-font-size);
+	@apply font-semibold;
+	@apply m-0 mb-1.5;
 }
 
-/* The Sub-Helper Text */
 .vscode-description {
-    color: var(--vscode-descriptionForeground);
-    font-size: calc(var(--vscode-font-size) * 0.9); 
-    line-height: 1.4;
-    margin: 0 0 10px 0; /* Extra drop spacing before input box below it */
+	@apply text-(--vscode-descriptionForeground);
+	@apply text-[calc(var(--vscode-font-size)*0.9)]/[1.4];
+	@apply m-0 mb-2.5;
 }
 
-/* --- 4. Interactive Input Elements --- */
 .vscode-input {
-    box-sizing: border-box;
-    width: 100%;
-    padding: 6px 8px; /* Internal cushion only - no side margins */
-    
-    background-color: var(--vscode-input-background);
-    color: var(--vscode-input-foreground);
-    border: 1px solid var(--vscode-input-border, transparent);
-    font-family: var(--vscode-font-family);
-    font-size: var(--vscode-font-size);
-    border-radius: 2px;
+	@apply box-border;
+	@apply w-full;
+	@apply py-1.5 px-2;
+	@apply bg-(--vscode-input-background);
+    @apply text-(--vscode-input-foreground);
+	@apply border-b border-b-(--vscode-input-border,transparent);
+	@apply font-(family-name:--vscode-font-family);
+	@apply text-(length:--vscode-font-size);
+	@apply rounded-xs;
 }
 
 .vscode-input:focus {
-    outline: 1px solid var(--vscode-focusBorder);
-    outline-offset: -1px;
+	@apply outline outline-(--vscode-focusBorder);
+	@apply -outline-offset-1;
 }
 
-/* FIXED: Changed selector from .vscode-input-field to match your base class */
 .vscode-input::placeholder {
-    color: var(--vscode-input-placeholderForeground);
-    opacity: 0.8;
+	@apply text-(--vscode-input-placeholderForeground);
+	@apply opacity-80;
 }
 
-/* --- 5. Interactive Buttons --- */
-/* FIXED: Simplified to a unified base class so modifiers cascade correctly */
 .vscode-button {
-    box-sizing: border-box;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 6px 14px; /* Native button proportions */
-    margin: 16px 0 8px 0; /* Vertical breathing room */
-    
-    font-family: var(--vscode-font-family);
-    font-size: var(--vscode-font-size);
-    font-weight: 500;
-    cursor: pointer;
-    border-radius: 4px;
-    overflow-wrap: normal;
-    
-    background-color: var(--vscode-button-background);
-    color: var(--vscode-button-foreground);
-    border: 1px solid var(--vscode-button-border, transparent);
+  	@apply box-border;
+	@apply inline-flex;
+	@apply items-center;
+	@apply justify-center;
+	@apply text-center;
+	@apply py-1.5 px-3.5;
+    @apply font-(family-name:--vscode-font-family);
+	@apply text-(length:--vscode-font-size);
+	@apply font-medium;
+	@apply cursor-pointer;
+	@apply rounded-sm;
+	@apply wrap-normal;
+    @apply bg-(--vscode-button-background);
+	@apply text-(--vscode-button-foreground);
+	@apply border border-(--vscode-button-border,transparent);
 }
 
-/* FIXED: Pseudo-classes now correctly attach to the functional base class */
 .vscode-button:hover {
-    background-color: var(--vscode-button-hoverBackground);
+	@apply bg-(--vscode-button-hoverBackground);
 }
 
 .vscode-button:focus {
-    outline: 1px solid var(--vscode-focusBorder);
-    outline-offset: 2px;
+	@apply outline outline-(--vscode-focusBorder);
+	@apply outline-offset-2;
 }
 
 .vscode-button:active {
-    opacity: 0.8;
+	@apply opacity-80;
 }
 
-/* Secondary Override class */
 .vscode-button.secondary {
-    background-color: var(--vscode-button-secondaryBackground);
-    color: var(--vscode-button-secondaryForeground);
+	@apply bg-(--vscode-button-secondaryBackground);
+	@apply text-(--vscode-button-secondaryForeground);
 }
 
 .vscode-button.secondary:hover {
-    background-color: var(--vscode-button-secondaryHoverBackground);
+	@apply bg-(--vscode-button-secondaryHoverBackground);
 }
 
 .attribute-row {
-    display: flex;
-    gap: 12px;
-    align-items: flex-end; /* Aligns input fields and button baselines */
-    padding: 8px 0;
-    border-bottom: 1px dashed var(--vscode-panel-border, transparent);
+	@apply flex;
+	@apply gap-3;
+	@apply items-end;
+	@apply py-2 px-0;
+	@apply border-b border-dashed border-b-(--vscode-panel-border,transparent);
 }
 
 .attribute-field {
-    flex: 1; /* Forces input pairs to share equal remaining horizontal width */
-    display: flex;
-    flex-direction: column;
+	@apply flex flex-col flex-1;
 }
 
 .vscode-toast {
-    background-color: var(--vscode-notifications-background, #252526);
-    color: var(--vscode-notifications-foreground, #cccccc);
-    border: 1px solid var(--vscode-notifications-border, #303031);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-    padding: 12px 16px;
-    border-radius: 4px;
-    font-family: var(--vscode-font-family, sans-serif);
-    font-size: var(--vscode-font-size, 13px);
-    min-width: 300px;
-    max-width: 450px;
-    animation: toastSlideIn 0.2s ease-out;
+	@apply bg-(--vscode-notifications-background,#252526);
+	@apply text-(--vscode-notifications-foreground,#cccccc);
+	@apply border border-(--vscode-notifications-border,#303031);
+	@apply shadow-[0_4px_8px_rgba(0,0,0,0.3)];
+	@apply py-3 px-4;
+	@apply rounded-sm;
+	@apply font-(family-name:--vscode-font-family,sans-serif);
+	@apply text-(length:--vscode-font-size,13px);
+	@apply min-w-75;
+	@apply max-w-112.5;
+    @apply animate-toast-in;
 }
 
-/* Accent side-borders matching VS Code warning/error states */
 .vscode-toast.error {
-    border-left: 4px solid var(--vscode-inputValidation-errorBorder, #f14c4c);
+	@apply border-l-4 border-l-(--vscode-inputValidation-errorBorder,#f14c4c);
 }
 
 .vscode-toast.info {
-    border-left: 4px solid var(--vscode-infoIcon-foreground, #3794ff);
-}
-
-@keyframes toastSlideIn {
-    from { transform: translateX(120%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
+	@apply border-l-4 border-l-(--vscode-infoIcon-foreground,#3794ff);
 }

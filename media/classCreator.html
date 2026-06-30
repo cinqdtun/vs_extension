@@ -3,22 +3,23 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link rel="stylesheet" href="${stylesheetUri}">
+		<link rel="stylesheet" href="__STYLESHEET_URI__">
 	</head>
 	<body>
+		<div id="target-path-data" class="hidden" data-value="__TARGET_PATH__"></div>
 		<h2 class="vscode-section-label">C++ Class Creator</h2>
 
 		<div class="form-group" style="margin-bottom: 18px;">
 			<label class="vscode-label">Output Location</label>
-			<div class="vscode-description" style="
-				font-family: var(--vscode-editor-font-family, monospace);
-				background-color: var(--vscode-textBlock-background, rgba(128,128,128,0.1));
-				padding: 6px 10px;
-				border-radius: 2px;
-				border-left: 3px solid var(--vscode-focusBorder);
-				word-break: break-all;
-			">
-				${targetPath}
+			<div id="target-path" class="vscode-description 
+						py-1.5
+						px-2.5
+						rounded-xs 
+						break-all 
+						font-(--vscode-editor-font-family,monospace)
+						bg-(--vscode-textBlock-background,rgba(128,128,128,0.1))
+						border-l-[3px] 
+						border-(--vscode-focusBorder)">
 			</div>
 		</div>
 
@@ -36,11 +37,10 @@
 		<div class="form-group">
 			<label class="vscode-label" for="private-id">
 				Attribute Prefix 
-				<span style="
-					color: var(--vscode-descriptionForeground); 
-					font-weight: normal; 
-					font-size: calc(var(--vscode-font-size) * 0.9); 
-					margin-left: 4px;
+				<span class="text-(--vscode-descriptionForeground)
+							 text-(length:var(--vscode-font-size) * 0.9)
+							 font-normal
+							 ml-1"
 				">(optional)</span>
 			</label>
 			<input 
@@ -54,7 +54,9 @@
 
 		<div id="attributes-container"></div>
 
-		<div style="display: flex; gap: 12px; margin-top: 16px;">
+		<div class="flex
+					gap-3
+					mt-4">
 			<button class="vscode-button secondary" id="add-btn" type="button">
 				Add attribute
 			</button>
@@ -63,15 +65,14 @@
 			</button>
 		</div>
 
-		<div id="toast-container" style="
-			position: fixed;
-			bottom: 20px;
-			right: 20px;
-			z-index: 10000;
-			display: flex;
-			flex-direction: column;
-			gap: 10px;
-		"></div>
+		<div id="toast-container" 
+			 class="fixed
+					bottom-5
+					right-5
+					z-10000
+					flex
+					flex-col
+					gap-2.5"></div>
 
 		<script>
 			const vscode = acquireVsCodeApi();
@@ -82,6 +83,8 @@
 			const generateBtn = document.getElementById('generate-btn');
 			const classNameInput = document.getElementById('class-name');
 			const privateIdInput = document.getElementById('private-id');
+			const targetPath = document.getElementById('target-path');
+			const targetPathData = document.getElementById('target-path-data').dataset.value;
 
 			let attributes = [];
 			let attributeCount = 0;
@@ -220,9 +223,18 @@
 						<label class="vscode-label">Attribute name</label>
 						<input type="text" class="vscode-input attr-name" placeholder="e.g., name" autocomplete="off" value="${attrData.name || ''}">
 					</div>
-					<button class="vscode-button secondary delete-btn" type="button" style="margin: 0; padding: 6px 12px; height: 32px;">
+					<button class="vscode-button 
+								   secondary 
+								   delete-btn
+								   m-0
+								   py-[6px]
+								   px-[12px]
+								   h-8"
+								   self-end
+							type="button">
 						Delete
 					</button>
+					
 				`;
 
 				const deleteBtn = row.querySelector('.delete-btn');
@@ -304,6 +316,8 @@
 			function testClassName(el) {
 				return (el.id === 'class-name');
 			}
+
+			targetPath.textContent = targetPathData;
 
 			if (previousState) {
 				classNameInput.value = previousState.className || '';

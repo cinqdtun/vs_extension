@@ -35,7 +35,7 @@ export function displayClassCreator(context: vscode.ExtensionContext, targetDirU
 		displayPath = `./${relativePath}/`;
 	}
 
-	const htmlUri = vscode.Uri.joinPath(context.extensionUri, 'src', 'providers', 'classCreator.html');
+	const htmlUri = vscode.Uri.joinPath(context.extensionUri, 'media', 'classCreator.html');
 	let htmlContent = fs.readFileSync(htmlUri.fsPath, 'utf8');
 
 	// Replace variables
