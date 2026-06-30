@@ -5,13 +5,6 @@ import * as fs from 'fs';
 import { logError, logInfo } from './logger';
 import { getInsertSpace, getTabSize } from './config';
 
-export function getStylesheetUri(context: vscode.ExtensionContext, panel: vscode.WebviewPanel) : vscode.Uri {
-	const stylesheetDiskPath = vscode.Uri.joinPath(context.extensionUri, 'dist', 'styles.css');
-	const stylesheetUri = panel.webview.asWebviewUri(stylesheetDiskPath);
-
-	return (stylesheetUri);
-}
-
 export async function resolveTargetDirectory(selectedUri: vscode.Uri | undefined): Promise<vscode.Uri> {
 	// If something selected extract path
 	if (selectedUri) {

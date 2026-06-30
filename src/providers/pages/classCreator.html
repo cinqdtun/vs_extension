@@ -3,10 +3,36 @@
 	<head>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<link rel="stylesheet" href="__STYLESHEET_URI__">
+		<style id="styles"></style>
 	</head>
+
 	<body>
+		<template id="attribute-template">
+			<div class="attribute-row">
+				<div class="attribute-field">
+					<label class="vscode-label">Attribute type</label>
+					<input type="text" class="vscode-input attr-type" placeholder="e.g., std::string" autocomplete="off" value="">
+				</div>
+				<div class="attribute-field">
+					<label class="vscode-label">Attribute name</label>
+					<input type="text" class="vscode-input attr-name" placeholder="e.g., name" autocomplete="off" value="">
+				</div>
+				<button class="vscode-button 
+								secondary 
+								delete-btn
+								m-0
+								py-1.5
+								px-3
+								h-8"
+								self-end
+						type="button">
+					Delete
+				</button>
+			</div>
+		</template>
+
 		<div id="target-path-data" class="hidden" data-value="__TARGET_PATH__"></div>
+
 		<h2 class="vscode-section-label">C++ Class Creator</h2>
 
 		<div class="form-group" style="margin-bottom: 18px;">
@@ -40,8 +66,8 @@
 				<span class="text-(--vscode-descriptionForeground)
 							 text-(length:var(--vscode-font-size) * 0.9)
 							 font-normal
-							 ml-1"
-				">(optional)</span>
+							 ml-1">
+							 (optional)</span>
 			</label>
 			<input 
 				type="text" 
@@ -79,6 +105,7 @@
 			const previousState = vscode.getState();
 
 			const container = document.getElementById('attributes-container');
+			const attributeTemplate = document.getElementById('attribute-template');
 			const addBtn = document.getElementById('add-btn');
 			const generateBtn = document.getElementById('generate-btn');
 			const classNameInput = document.getElementById('class-name');
@@ -209,33 +236,8 @@
 				attributeCount++;
 
 				const id = attributeCount;
-				const row = document.createElement('div');
-
-				row.className = 'attribute-row';
-				row.id = 'row-' + id;
-
-				row.innerHTML = `
-					<div class="attribute-field">
-						<label class="vscode-label">Attribute type</label>
-						<input type="text" class="vscode-input attr-type" placeholder="e.g., std::string" autocomplete="off" value="${attrData.type || ''}">
-					</div>
-					<div class="attribute-field">
-						<label class="vscode-label">Attribute name</label>
-						<input type="text" class="vscode-input attr-name" placeholder="e.g., name" autocomplete="off" value="${attrData.name || ''}">
-					</div>
-					<button class="vscode-button 
-								   secondary 
-								   delete-btn
-								   m-0
-								   py-[6px]
-								   px-[12px]
-								   h-8"
-								   self-end
-							type="button">
-						Delete
-					</button>
-					
-				`;
+				const clone = attributeTemplate.content.cloneNode(true);
+				const row = clone.firstElementChild;
 
 				const deleteBtn = row.querySelector('.delete-btn');
 				deleteBtn.addEventListener('click', () => {
@@ -248,7 +250,8 @@
 					removeAttribute(idx);
 				});
 
-				const attrName = row.querySelector('.attr-name')
+				const attrName = row.querySelector('.attr-name');
+				attrName.value = `${attrData.name || ''}`;
 				attrName.addEventListener('input', () => {
 					const idx = getAttributeIdx(deleteBtn);
 
@@ -260,7 +263,8 @@
 					updateState({ attributes: attributes });
 				});
 
-				const attrType = row.querySelector('.attr-type')
+				const attrType = row.querySelector('.attr-type');
+				attrType.value = `${attrData.type || ''}`;
 				attrType.addEventListener('input', () => {
 					const idx = getAttributeIdx(deleteBtn);
 

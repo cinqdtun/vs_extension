@@ -1,7 +1,15 @@
-const esbuild = require("esbuild");
+import * as esbuild from "esbuild";
+import * as fs from "fs";
+import * as path from "path";
+import { tailwindPlugin } from "./tailwindPlugin.js";
+import { minifiedHtmlPlugin } from "./minifiedHtmlPlugin.js";
+import { fileURLToPath } from 'url';
 
 const production = process.argv.includes('--production');
 const watch = process.argv.includes('--watch');
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 /**
  * @type {import('esbuild').Plugin}
@@ -24,6 +32,11 @@ const esbuildProblemMatcherPlugin = {
 };
 
 async function main() {
+	const outDir = path.join(__dirname, 'dist');
+
+	console.log('Removing previous build files');
+	fs.rmSync(outDir, { recursive: true, force: true });
+
 	const ctx = await esbuild.context({
 		entryPoints: [
 			'src/extension.ts'
@@ -38,7 +51,8 @@ async function main() {
 		external: ['vscode'],
 		logLevel: 'silent',
 		plugins: [
-			/* add to the end of plugins array */
+			tailwindPlugin,
+			minifiedHtmlPlugin,
 			esbuildProblemMatcherPlugin,
 		],
 	});

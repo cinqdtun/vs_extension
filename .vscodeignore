@@ -1,8 +1,16 @@
+# Devloppement files / folder
 .vscode/**
+src/**
+media/**
+node_modules/**
 .gitignore
+.vscodeignore
+build.js
 tsconfig.json
 esbuild.js
-eslint.config.mjs
-vsc-extension-quickstart.md
-src/**
-node_modules/**
+
+# Prdouction files / folder
+!dist/**
+!package.json
+!README.md
+!LICENSE

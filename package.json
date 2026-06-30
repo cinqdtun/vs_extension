@@ -1,8 +1,13 @@
 {
   "name": "vs-extension",
   "displayName": "vs_extension",
+  "version": "1.0.0",
+  "publisher": "5dt1",
   "description": "Visual Studio Code extension to improve coding efficiency",
-  "version": "0.0.1",
+  "repository": {
+        "type": "git",
+        "url": "https://github.com/yourusername/your-repo"
+    },
   "engines": {
     "vscode": "^1.109.0"
   },
@@ -47,35 +52,24 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run package",
-    "compile": "npm run check-types && npm run lint && node esbuild.js",
-    "watch": "npm-run-all -p watch:*",
-    "watch:esbuild": "node esbuild.js --watch",
-    "watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
-    "package": "npm run check-types && npm run lint && node esbuild.js --production",
-    "compile-tests": "tsc -p . --outDir out",
-    "watch-tests": "tsc -p . -w --outDir out",
-    "pretest": "npm run compile-tests && npm run compile && npm run lint",
-    "check-types": "tsc --noEmit",
-    "lint": "eslint src",
-    "test": "vscode-test",
-    "compile-tailwind": "npx @tailwindcss/cli -i ./src/styles/styles.css -o ./dist/styles.css --minify",
-    "dev": "npm run compile-tailwind && npx @vscode/vsce package --allow-missing-repository --allow-star-activation && code --install-extension vs-extension-0.0.1.vsix"
+	"dev": "node esbuild.js --watch",
+    "build": "node esbuild.js --production",
+    "package": "npm run build && npx @vscode/vsce package",
+    "push": "npm run package && code --install-extension vs-extension-1.0.0.vsix"
   },
   "devDependencies": {
+    "@tailwindcss/cli": "^4.3.2",
     "@types/mocha": "^10.0.10",
     "@types/node": "^26.0.1",
-    "@types/vscode": "^1.125.0",
+    "@types/vscode": "^1.109.0",
     "@vscode/test-electron": "^3.0.0",
     "esbuild": "^0.28.1",
     "eslint": "^9.39.4",
+    "html-minifier-terser": "^7.2.0",
     "npm-run-all": "^4.1.5",
+    "tailwindcss": "^4.3.1",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.62.1"
-  },
-  "dependencies": {
-    "@tailwindcss/cli": "^4.3.2",
-    "tailwindcss": "^4.3.1"
   },
   "allowScripts": {
     "@parcel/watcher@2.5.1": true,

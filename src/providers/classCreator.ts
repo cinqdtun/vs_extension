@@ -1,11 +1,10 @@
 import * as vscode from 'vscode';
-import { getStylesheetUri, } from '../utils/utils';
-import { createVscodeInput } from '../components/input';
+import * as fs from 'fs';
+import * as path from 'path';
 import { logInfo } from "../utils/logger";
 import { handleCreateClass } from "../core/createClass";
 import { getPrivateId } from "../utils/config";
-import * as fs from "fs";
-
+import rawPage from "./pages/classCreator.html";
 
 export function displayClassCreator(context: vscode.ExtensionContext, targetDirUri: vscode.Uri) {
 	const panel = vscode.window.createWebviewPanel(
@@ -15,10 +14,12 @@ export function displayClassCreator(context: vscode.ExtensionContext, targetDirU
 			viewColumn: vscode.ViewColumn.One,
 			preserveFocus: false
     	},
-		{ enableScripts: true }
+		{ 	enableScripts: true, 
+			localResourceRoots: [
+				vscode.Uri.joinPath(context.extensionUri, 'dist'),
+			]
+		}
 	);
-
-	const stylesheetUri = getStylesheetUri(context, panel);
 
 	const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
 	let displayPath: string;
@@ -35,14 +36,19 @@ export function displayClassCreator(context: vscode.ExtensionContext, targetDirU
 		displayPath = `./${relativePath}/`;
 	}
 
-	const htmlUri = vscode.Uri.joinPath(context.extensionUri, 'media', 'classCreator.html');
-	let htmlContent = fs.readFileSync(htmlUri.fsPath, 'utf8');
-
+	const stylesPath = path.join(context.extensionPath, 'dist', 'styles.css');
+	const stylesContent = fs.readFileSync(stylesPath, 'utf8');
+	
 	// Replace variables
-	htmlContent = htmlContent.replace('${stylesheetUri}', stylesheetUri.toString());
-	htmlContent = htmlContent.replace('${targetPath}', displayPath);
+	const htmlContent = rawPage.replace('__TARGET_PATH__', displayPath);
 
-	panel.webview.html = htmlContent;
+	// Inline styles
+	const finalHtml = htmlContent.replace(
+		/<style id=["']?styles["']?><\/style>/,
+		`<style id="styles">${stylesContent}</style>`
+	);
+
+	panel.webview.html = finalHtml;
 
 	panel.webview.onDidReceiveMessage(
 		async (message) => {
