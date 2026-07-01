@@ -8,8 +8,8 @@ import rawPage from "./pages/classCreator.html";
 
 export function displayClassCreator(context: vscode.ExtensionContext, targetDirUri: vscode.Uri) {
 	const panel = vscode.window.createWebviewPanel(
-		'createClass',
-		'Create Class',
+		'createCPlusPlusClass',
+		'Create C++ Class',
 		{ 
 			viewColumn: vscode.ViewColumn.One,
 			preserveFocus: false

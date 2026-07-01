@@ -7,7 +7,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	initLogger();
 
-	let disposable = vscode.commands.registerCommand('vs-extension.createCppClass', async (selectedUri: vscode.Uri) => {
+	let disposable = vscode.commands.registerCommand('cplusplus-class-creator-utilities.createCppClass', async (selectedUri: vscode.Uri) => {
 		const targetDirUri = await resolveTargetDirectory(selectedUri);
         displayClassCreator(context, targetDirUri);
     });

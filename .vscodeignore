@@ -5,9 +5,12 @@ media/**
 node_modules/**
 .gitignore
 .vscodeignore
-build.js
+declarations.d.ts
 tsconfig.json
 esbuild.js
+eslint.config.mjs 
+minifiedHtmlPlugin.js
+tailwindPlugin.js
 
 # Prdouction files / folder
 !dist/**
