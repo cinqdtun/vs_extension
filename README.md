@@ -86,4 +86,4 @@ The packaging process uses `.vscodeignore` to strip out raw TypeScript sources, 
 
 ## License
 
-This project is distributed under the terms of the MIT License. See `LICENSE` for structural details.
+This project is distributed under the terms of the GPL-3.0 License. See `LICENSE` for structural details.
