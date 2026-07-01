@@ -3,6 +3,7 @@
   "displayName": "C++ Class Creator & Utilities",
   "version": "1.0.0",
   "publisher": "5dt1",
+  "icon": "logo.png",
   "description": "A lightweight VS Code extension that generates C++ class file (.hpp). It forces immediate workspace indexing by the clangd language server and uses a custom, zero-dependency compilation pipeline instead of heavy web frameworks.",
   "repository": {
         "type": "git",

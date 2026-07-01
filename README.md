@@ -1,3 +1,9 @@
+<div align="center">
+
+![Logo extension](logo.png)
+
+</div>
+
 # C++ Class Creator & Utilities
 
 A lightweight VS Code extension that generates C++ class file (.hpp). It forces immediate workspace indexing by the clangd language server and uses a custom, zero-dependency compilation pipeline instead of heavy web frameworks.
